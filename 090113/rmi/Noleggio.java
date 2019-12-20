@@ -1,5 +1,3 @@
-package rmi;
-
 public class Noleggio{
 
     String id;
@@ -85,11 +83,14 @@ public class Noleggio{
         return "L".equals(id);
     }
 
-    public boolean isNoleggioOk(int giorno, int mese, int anno){
-        long myNumber = this.anno * 365 + this.mese * 30 + this.giorno;
-        long theirNumber = anno * 365 + mese * 30 + giorno;
+    public boolean isNoleggioOk(int giorno, int mese, int anno, int durata){
+        //Uso anni da 360 gg perchè ho supposto i mesi di 30 gg
+        long myNumber = this.anno * 360 + this.mese * 30 + this.giorno;
+        long theirNumber = anno * 360 + mese * 30 + giorno;
 
-        return theirNumber > myNumber;
+        System.out.println(theirNumber+" > "+myNumber+"+"+durata);
+
+        return theirNumber > myNumber + durata;
     }
     
 

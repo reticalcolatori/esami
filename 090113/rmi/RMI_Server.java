@@ -17,11 +17,6 @@ public class RMI_Server extends UnicastRemoteObject implements RMI_interfaceFile
 	private static final int TAB_LENGTH = 5;
 	private static Noleggio[] tabella;
 
-	// qui eventuali variabili e strutture dati
-	/*
-	 * private static final int N = 10; static Noleggio tabella[] = null;
-	 */
-
 	// Costruttore
 	public RMI_Server() throws RemoteException {
 		super();
@@ -29,68 +24,63 @@ public class RMI_Server extends UnicastRemoteObject implements RMI_interfaceFile
 
 	// Eventuali metodi legati alla struttura dati
 
-	/*
-	 * 
-	 * public static void stampa() { System.out.
-	 * println("Identificatore\tData\tGiorni\tModello\tCosto giornaliero\n");
-	 * 
-	 * for(int i=0; i<N; i++) { System.out.println(tabella[i].id + "\t" +
-	 * tabella[i].giorno + "/" + tabella[i].mese + "/" + tabella[i].anno + "\t" +
-	 * tabella[i].giorni + "\t" + tabella[i].modello + "\t" + tabella[i].costo ); }
-	 * }
-	 * 
-	 */
-
 	public int inserisci_sci(String id, String modello, int costo) throws RemoteException {
-		//Ricerca nel database di un doppione
-		//Inoltre ricerco un buco vuoto.
+
+		// Check sul costo
+		if (costo <= 0) {
+			return -3;
+		}
+
+		// Ricerca nel database di un doppione
+		// Inoltre ricerco un buco vuoto.
 		int postoVuoto = -1;
-		for(int i = 0; i < TAB_LENGTH; i++){
-			if(tabella[i].getId().equals(id)){
+		for (int i = 0; i < TAB_LENGTH; i++) {
+			if (tabella[i].getId().equals(id)) {
 				// throw new RemoteException("ID già usato");
 				return -1;
 			}
 
-			if(postoVuoto == -1){
-				if(tabella[i].isLibero()){
+			if (postoVuoto == -1) {
+				if (tabella[i].isLibero()) {
 					postoVuoto = i;
 				}
 			}
 		}
 
-		//Check se c'è ancora posto.
-		if(postoVuoto == -1){
+		// Check se c'è ancora posto.
+		if (postoVuoto == -1) {
 			return -2;
 		}
 
-		//Inserisco nel primo spazio disponibile
+		// Inserisco nel primo spazio disponibile
 		tabella[postoVuoto].setId(id);
 		tabella[postoVuoto].setModello(modello);
 		tabella[postoVuoto].setCostoGiornaliero(costo);
 
 		return 0;
-		
+
 	}
 
 	public int noleggia_sci(String id, int giorno, int mese, int anno, int durata) throws RemoteException {
 		int posto = -1;
 
-		//Ricerca nella struttura
+		// Ricerca nella struttura
 		for (int i = 0; i < TAB_LENGTH; i++) {
-			if(tabella[i].getId().equals(id)) posto = i;
+			if (tabella[i].getId().equals(id))
+				posto = i;
 		}
 
-		//Verifica presenza
-		if(posto == -1){
+		// Verifica presenza
+		if (posto == -1) {
 			return -1;
 		}
 
-		//Check noleggio
-		if(!tabella[posto].isNoleggioOk(giorno, mese, anno)){
+		// Check noleggio
+		if (!tabella[posto].isNoleggioOk(giorno, mese, anno, durata)) {
 			return -2;
 		}
 
-		//Aggiornamento dei dati
+		// Aggiornamento dei dati
 		tabella[posto].setGiorno(giorno);
 		tabella[posto].setMese(mese);
 		tabella[posto].setAnno(anno);
@@ -107,8 +97,8 @@ public class RMI_Server extends UnicastRemoteObject implements RMI_interfaceFile
 
 		// Controllo dei parametri della riga di comando
 		if (args.length != 0 && args.length != 1) {
-			System.out.println("Sintassi: ServerRMI [REGISTRYPORT]");
-			System.exit(1);
+		System.out.println("Sintassi: ServerRMI [REGISTRYPORT]");
+		System.exit(1);
 		}
 		if (args.length == 1) {
 			try {
@@ -130,14 +120,13 @@ public class RMI_Server extends UnicastRemoteObject implements RMI_interfaceFile
 		tabella[1] = new Noleggio("00002", 24, 04, 2013, 15, "donna", 5);
 		tabella[2] = new Noleggio("00003", 20, 03, 2013, 5, "bambino", 10);
 		tabella[3] = new Noleggio();
-		tabella[3].id = "00004";
-		tabella[3].modello = "uomo";
-		tabella[3].setCostoGiornaliero(20);
 		tabella[4] = new Noleggio();
-		tabella[4].id = "00005";
-		tabella[4].modello = "uomo";
-		tabella[4].setCostoGiornaliero(25);
 
+		// Impostazione del SecurityManager
+		if (System.getSecurityManager() == null){
+			System.setProperty("java.security.policy", "rmi.policy");
+			System.setSecurityManager(new RMISecurityManager());
+		}
 
 		// Registrazione del servizio
 		String completeName = "//" + registryHost + ":" + registryPort + "/" + serviceName;
