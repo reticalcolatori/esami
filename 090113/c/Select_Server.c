@@ -259,6 +259,10 @@ int main(int argc, char **argv)
 			esito = -1;
 			
 	      // Elaborazione....
+
+
+
+
 			printf("Esito: %d\n",esito);
 			esito = ntohl(esito);
 			
@@ -291,25 +295,23 @@ int main(int argc, char **argv)
 			{
 				close(listenfd);
 				//chi mi fa richiesta
-				hostTcp = gethostbyaddr((char *) &clientaddr.sin_addr,sizeof(cliaddr.sin_addr), AF_INET);
+				hostTcp = gethostbyaddr((char *) &clientaddr.sin_addr,sizeof(clientaddr.sin_addr), AF_INET);
 				printf("Dentro il figlio pid=%d\n", getpid());
 				printf("Richiesta del client: %s", hostTcp);
 				
-    // CASO 1 (una socket per richiesta)--> logica applicativa del programma che si richiede <-- 
-	    //Per una sola connessione decommentare il ciclo for
-	    //for(;;)
-	    //{
-	      /***  CASO 2 (unica socket) --> logica applicativa del programma che si richiede <-- **/
-				printf("Richiesta, la seguente..");
-				while((nread=read(connfd,buff,sizeof(buff)))>0)
+    			// CASO 1 (una socket per richiesta)--> logica applicativa del programma che si richiede <-- 
+				for(;;)
 				{
-					if((nwrite=write(connfd,buff,nread))<0)
+					printf("Richiesta, la seguente..");
+					while((nread=read(connfd,buff,sizeof(buff)))>0)
 					{
-						perror("write");
-						exit(3);
+						if((nwrite=write(connfd,buff,nread))<0)
+						{
+							perror("write");
+							exit(3);
+						}
 					}
-				}
-	  //} //for
+				} //for
 				
 				printf("Figlio %i: chiudo connessione e termino\n", getpid());
 				close(connfd);
@@ -321,7 +323,6 @@ int main(int argc, char **argv)
 
       } /* ciclo for della select */
 
-      /* NEVER ARRIVES HERE */
       exit(0);
 }//main
 
