@@ -1,9 +1,3 @@
-/************************************
-*           *
-*     Select_Client_Datagram.c      *
-*           		            *
-************************************/
-
  /******** #INCLUDE ********/
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,26 +11,25 @@
 #include <fcntl.h>
 
  /******** #DEFINE *******/
-//#define 
+#define LENGTH 25
 
-/*** STRUTTURA DA INVIARE ATTRAVERO LA SOCKET ***/
-//struttura di esempio:
+/*** STRUTTURA DA INVIARE ATTRAVERO LA SOCKET DATAGRAM **/
 typedef struct
 {
-	int dati;
+	char id[LENGTH];
 }
 Request;
+
 
 //MAIN
 int main(int argc, char **argv)
 {
 	struct hostent *host;
 	struct sockaddr_in clientaddr, servaddr;
-	int  sd, len, port, num , ris;
+	int  sd, len, port, num;
 	int nbyte_recv, nbyte_send;
 
-      //Variabili che cambiano
-	int condition, ris;
+	int ris;
 	Request req;
 
       /* CONTROLLO ARGOMENTI ---------------------------------- */
@@ -50,17 +43,7 @@ int main(int argc, char **argv)
       /* ----- Inizializzazione clientaddr -----------------*/
 	memset((char *)&clientaddr, 0, sizeof(struct sockaddr_in));
 	clientaddr.sin_family = AF_INET;
-
 	clientaddr.sin_addr.s_addr = INADDR_ANY;
-      /*
-    * host=gethostbyname("localhost");
-    clientaddr.sin_addr.s_addr=((struct in_addr *)(host->h_addr))->s_addr;
-    if( clientaddr.sin_addr.s_addr == INADDR_NONE )
-    {
-		perror("Bad address");
-		exit(2);
-    }*/
-
 	clientaddr.sin_port = 0;
 
       /* ----- Inizializzazione servaddr -----------------*/
@@ -96,7 +79,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		servaddr.sin_addr.s_addr=((struct in_addr *)(host->h_addr))->s_addr;
+		servaddr.sin_addr.s_addr=((struct in_addr *)(host->h_addr_list[0]))->s_addr;
 		servaddr.sin_port = htons(atoi(argv[2]));
 	}
 	printf("Client Datagram avviato\n");
@@ -122,23 +105,20 @@ int main(int argc, char **argv)
 	/******* CORPO DEL CLIENT *******/
 	//Ciclo di accettazione di richieste da utente
 	printf("\n************************************\n");
-	printf("Inserisci nuova richiesta, (ctrl+d per terminare): \n");
+	printf("Inserisci modello, (ctrl+d per terminare): \n");
 
-	condition = 0;
-	while(condition)
+	while(gets(req.id) != NULL)
 	{
-	  	//... qui logica applicativa
-
-		printf("Inserisci la richiesta:  ");
 
 	  	/*RICHIESTA DI OPERAZIONE*/
 		len=sizeof(servaddr);
 
 		nbyte_send = sendto(sd, &req, sizeof(Request), 0, (struct sockaddr *)&servaddr, len);
+		
 		if(nbyte_send < 0)
 		{
 			perror("Errore sendto");
-	    //Se questo invio fallisce il client torna all'inizio del ciclo
+	    	printf("Inserisci modello, (ctrl+d per terminare): \n");
 			continue;
 		}
 
@@ -151,26 +131,23 @@ int main(int argc, char **argv)
 		if (nbyte_recv <0)
 		{
 			perror("Errore recvfrom");
-	    	//Se questo invio fallisce il client torna all'inizio del ciclo
+			printf("Inserisci modello, (ctrl+d per terminare): \n");
 			continue;
 		}
 
-	  	//Manca lato server
-		if(((int)ntohl(ris)) < 0)
+		ris=ntohl(ris);
+
+	  	//Errore lato server
+		if(ris < 0)
 		{
-			printf("File non trovato lato server. \n");
+			printf("Modello non trovato: %d \n", ris);
 		}
 		else //lo trova stampo il risultato
 		{
-		  	ris = (int)ntohl(ris);
 		  	printf("Esito: %i\n", ris);
-		  	if (ris == -1)
-		  		printf("Operazione non eseguita\n");
-		  	if (ris == 0)
-		  		printf("Operazione eseguita con successo\n");
 		}
 	  
-	  	printf("Inserisci nuova richiesta, (ctrl+d per terminare): \n");
+	  	printf("Inserisci modello, (ctrl+d per terminare): \n");
 	  
 	  
 	}//fine ciclo WHILE
