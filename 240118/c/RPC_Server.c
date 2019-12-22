@@ -40,10 +40,13 @@ int * conta_occorrenze_linea_1_svc(char **linea, struct svc_req *rp){
 	while((currItem = readdir(myDir)) != NULL){
         
         if(currItem->d_type == DT_REG){
-
 			//Tipo di file regolare.
 			//File di testo se ha estensione txt
 			if(strstr(currItem->d_name, "txt") != NULL){
+
+				//Print del nome file
+				//printf("Filename: %s\n", currItem->d_name);
+
 				//Apro e leggo
 				int fd = open(currItem->d_name, O_RDONLY);
 
@@ -54,22 +57,38 @@ int * conta_occorrenze_linea_1_svc(char **linea, struct svc_req *rp){
 
 				char line[DIM_BUFFER];
 				int nread;
-				char x;
-				int i;
-				
-				//Leggo una linea
-				while((nread = read(fd, line+i, sizeof(char))) > 0){
-					if(line[i] == '\n'){
-						line[i] = '\0';
-						break;
+				int i = 0;
+				int hoLinea = 1;
+
+				//Finchè ho linee
+				while(hoLinea){
+					//Leggo una linea
+					while((nread = read(fd, line+i, sizeof(char))) > 0){
+						if(line[i] == '\n'){
+							line[i] = '\0';
+							break;
+						}
+
+						i++;
 					}
 
-					i++;
+					if(nread == 0) hoLinea = 0;
+					if(nread < 0) break;
+
+					//Confronto
+					if(strcmp(line, *linea) == 0) res++;
+					//Reset della linea
+					memset(line, 0, DIM_BUFFER);
+					i=0;
 				}
 
-				//Confronto
-				if(strcmp(line, *linea) == 0) res++;
 
+				if(nread < 0){
+					res = nread;
+        			return (&res);
+				}
+				
+				close(fd);
 			}
 		}
 	}

@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
 		    printf("\nScelta: conta_occorrenze_linea\n");
 
 			char linea[LENGTH];
+			char *lineaPointer = linea;
 
 			printf("Inserisci la linea:\n");
 
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-		    risInt = conta_occorrenze_linea_1((char**)&linea, cl);
+		    risInt = conta_occorrenze_linea_1(&lineaPointer, cl);
 
 		    // Controllo del risultato
 		    if(risInt == NULL) 
@@ -100,6 +101,9 @@ int main(int argc, char *argv[])
 			char nomeDirettorio[NOMEDIRETTORIO_LENGTH];
 			char prefisso[PREFISSO_LENGTH];
 
+			char *nomeDirettorioPointer = nomeDirettorio;
+			char *prefissoPointer = prefisso;
+
 			//Richiesta nome direttorio:
 			printf("Inserisci il nome del direttorio:\n");
 			if(gets(nomeDirettorio) == NULL){
@@ -114,9 +118,8 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			//Non so se funziona.
-			req.nomeDirettorio = (char*) nomeDirettorio;
-			req.prefisso = (char*) prefisso;
+			req.nomeDirettorio =  nomeDirettorioPointer;
+			req.prefisso = prefissoPointer;
 
 		    // Invocazione remota dopo aver caricato la struttura dati
 		    resStruct = lista_file_prefisso_1(&req, cl);
