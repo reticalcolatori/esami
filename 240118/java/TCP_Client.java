@@ -1,191 +1,335 @@
 /************************************
-*            *
 *     TCP_Client.java	            *
 *           		            *
 ************************************/
-
 
 /* CLIENTE CON CONNESSIONE*/
 
 import java.net.*;
 import java.io.*;
 
-public class TCP_Client 
-{
+public class TCP_Client {
 
-  /**
-  * @param args - Usage: java TCP_Client <address> <port>
-  */
-  
- 	public static void main(String[] args) throws IOException 
-  	{
-	     /*
-	     * Come argomenti si devono passare un nome di host valido e una porta
-	     *  
-	     */
-	     InetAddress addr = null;
-	     int port = -1;
+	/**
+	 * @param args - Usage: java TCP_Client <address> <port>
+	 */
 
-	      // Controllo argomenti 
-	     try
-	     {
-	     	if(args.length == 2)
-	     	{
-	     		addr = InetAddress.getByName(args[0]);
-	     		port = Integer.parseInt(args[1]);
-	     	} 
-	     	else
-	     	{
-	     		System.out.println("Usage: java TCP_Client serverAddr serverPort");
-	     		System.exit(1);
-	     	}
-	     } 
-	     catch(NumberFormatException e)
-	     {
-	     	System.out.println("Numero di porta errato: " + args[1]);
-	     	e.printStackTrace();
-	     	System.out.println("Usage: java TCP_Client serverAddr serverPort");
-	     	System.exit(1);
-	     }
-	     catch(Exception e)
-	     {
-	     	System.out.println("Problemi, i seguenti: ");
-	     	e.printStackTrace();
-	     	System.out.println("Usage: java TCP_Client serverAddr serverPort");
-	     	System.exit(1);
-	     }
+	public static void main(String[] args) throws IOException {
+		/*
+		 * Come argomenti si devono passare un nome di host valido e una porta
+		 * 
+		 */
+		InetAddress addr = null;
+		int port = -1;
 
-	     /** ----- Inizializzazione strutture dati Cliente ----- **/
-	     Socket socket = null;
-	     DataInputStream inSock = null;
-	     DataOutputStream outSock = null;
-	     String richiesta = null;
+		// Controllo argomenti
+		try {
+			if (args.length == 2) {
+				addr = InetAddress.getByName(args[0]);
+				port = Integer.parseInt(args[1]);
+			} else {
+				System.out.println("Usage: java TCP_Client serverAddr serverPort");
+				System.exit(1);
+			}
+		} catch (NumberFormatException e) {
+			System.out.println("Numero di porta errato: " + args[1]);
+			e.printStackTrace();
+			System.out.println("Usage: java TCP_Client serverAddr serverPort");
+			System.exit(1);
+		} catch (Exception e) {
+			System.out.println("Problemi, i seguenti: ");
+			e.printStackTrace();
+			System.out.println("Usage: java TCP_Client serverAddr serverPort");
+			System.exit(1);
+		}
 
-	      // Creazione socket 
-	      // Creazione stream di input/output su socket
-	     try
-	     {
-	     	socket = new Socket(addr, port);
-		    // Setto il timeout per non bloccare indefinitivamente il client
-	     	socket.setSoTimeout(30000);
-	     	System.out.println("Creata la socket: " + socket);
-	     	inSock = new DataInputStream(socket.getInputStream());
-	     	outSock = new DataOutputStream(socket.getOutputStream());
-	     }
-	     catch(IOException e)
-	     {
-	     	System.out.println("Problemi nella creazione degli stream su socket: ");
-	     	e.printStackTrace();
-	     	System.exit(1);
-	     }
-	     catch(Exception e)
-	     {
-	     	System.out.println("Problemi nella creazione della socket: ");
-	     	e.printStackTrace();
-	     	System.exit(2);
-	     }
+		/** ----- Inizializzazione strutture dati Cliente ----- **/
+		Socket socket = null;
+		DataInputStream inSock = null;
+		DataOutputStream outSock = null;
+		String richiesta = null;
 
-	      // Eventuale stream per l'interazione con l'utente da tastiera
+		// Creazione socket
+		// Creazione stream di input/output su socket
+		try {
+			socket = new Socket(addr, port);
+			// Setto il timeout per non bloccare indefinitivamente il client
+			socket.setSoTimeout(30000);
+			System.out.println("Creata la socket: " + socket);
+			inSock = new DataInputStream(socket.getInputStream());
+			outSock = new DataOutputStream(socket.getOutputStream());
+		} catch (IOException e) {
+			System.out.println("Problemi nella creazione degli stream su socket: ");
+			e.printStackTrace();
+			System.exit(1);
+		} catch (Exception e) {
+			System.out.println("Problemi nella creazione della socket: ");
+			e.printStackTrace();
+			System.exit(2);
+		}
 
-	     BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-	     System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
-	     try
-	     {
+		// Eventuale stream per l'interazione con l'utente da tastiera
 
-	     	while((richiesta = stdIn.readLine()) != null)
-	     	{
-		  		/*
-			  	if(richiesta.equalsIgnoreCase("U") || richiesta.equalsIgnoreCase("D"))
-		      	{
-		      		outSock.writeUTF(richiesta);
-		      		System.out.println("Inviata richiesta: " + richiesta);
-		      	}
-		      	outSock.flush();
+		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 
-		      	if(richiesta.equalsIgnoreCase("U"))
-		      	{*/
-		      		try
-		      		{
-				      // Elaborazione richiesta e invio
-		      			outSock.writeUTF(richiesta);
-		      			System.out.println("Inviata richiesta: " + richiesta);
-				      // chiudo output della socket 
-		      			socket.shutdownOutput();
-		      			System.out.println("Chiusura output della socket: " + socket);
-		      		}
-		      		catch(Exception e)
-		      		{
-		      			System.out.println("Problemi nell'invio della richiesta " + richiesta );
-		      			e.printStackTrace();
-		      			System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");		            
-		      			continue;
-				      // il client continua l'esecuzione riprendendo dall'inizio del ciclo
-		      		}
+		System.out.println("Inserisci E per Elimina occorrenza");
+		System.out.println("Inserisci T per Download sopra soglia");
+		System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire.");
 
-			    	//--> qui logica 
+		try {
+			while ((richiesta = stdIn.readLine()) != null) {
+
+				if (richiesta.equalsIgnoreCase("E") || richiesta.equalsIgnoreCase("T")) {
+					outSock.writeUTF(richiesta);
+					System.out.println("Inviata richiesta: " + richiesta);
+				}
+
+				outSock.flush();
+
+				if (richiesta.equalsIgnoreCase("E")) {
+					try {
+						// Elaborazione richiesta e invio
+						outSock.writeUTF(richiesta);
+						System.out.println("Inviata richiesta: " + richiesta);
+					} catch (Exception e) {
+						System.out.println("Problemi nell'invio della richiesta " + richiesta);
+						e.printStackTrace();
+
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+						// il client continua l'esecuzione riprendendo dall'inizio del ciclo
+					}
+
+					System.out.println("Inserisci la parola:");
+					String parola = stdIn.readLine();
+
+					if (parola == null) {
+						// EOF
+						break;
+					}
+
+					System.out.println("Inserisci nome file:");
+					String nomeFile = stdIn.readLine();
+
+					if (nomeFile == null) {
+						// EOF
+						break;
+					}
+
+					// Invio dei parametri.
+
+					try {
+						// Elaborazione richiesta e invio
+						outSock.writeUTF(parola);
+						outSock.writeUTF(nomeFile);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+					}
+
+					// Ricezione della risposta
+
+					String risposta;
+					try {
+						risposta = inSock.readUTF();
+						System.out.println("Risposta: " + risposta);
+					} catch (SocketTimeoutException ste) {
+						System.out.println("Timeout scattato: ");
+						ste.printStackTrace();
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+					} catch (EOFException e) {
+						System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
+						socket.close();
+						System.out.println("TCP_Client: termino...");
+						System.exit(0);
+					} catch (Exception e) {
+						System.out.println("Problemi nella ricezione della risposta, i seguenti: ");
+						e.printStackTrace();
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+					}
+				} else if (richiesta.equalsIgnoreCase("T")) {
+
+					try {
+						// Elaborazione richiesta e invio
+						outSock.writeUTF(richiesta);
+						System.out.println("Inviata richiesta: " + richiesta);
+					} catch (Exception e) {
+						System.out.println("Problemi nell'invio della richiesta " + richiesta);
+						e.printStackTrace();
+
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+						// il client continua l'esecuzione riprendendo dall'inizio del ciclo
+					}
+
+					System.out.println("Inserisci direttorio:");
+					String direttorio = stdIn.readLine();
+
+					if (direttorio == null) {
+						// EOF
+						break;
+					}
+
+					System.out.println("Inserisci soglia:");
+					String sogliaString = stdIn.readLine();
+
+					if(sogliaString == null){
+						//EOF
+						break;
+					}
+
+					int soglia = -1;
+
+					try{
+						soglia = Integer.parseInt(sogliaString);
+					}catch(NumberFormatException ex){
+						System.out.println("Soglia non numerica");
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+					}
+
+					if(soglia < 0){
+						//CI vuole >= 0
+						System.out.println("Soglia <0");
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+					}
+
+					try {
+						// Elaborazione richiesta e invio
+						outSock.writeUTF(direttorio);
+						outSock.writeInt(soglia);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+					}
+
+					//Ora ricevo in ordine:
+					//Esito risposta: ok
+					//Numero di file da trasferire
+					//Nome singolo file
+					//Dimensione singolo file
+					//Contenuto singolo file
+
+					String risposta = null;
+
+					try {
+						risposta = inSock.readUTF();
+						System.out.println("Risposta: " + risposta);
+					} catch (SocketTimeoutException ste) {
+						System.out.println("Timeout scattato: ");
+						ste.printStackTrace();
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+					} catch (EOFException e) {
+						System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
+						socket.close();
+						System.out.println("TCP_Client: termino...");
+						System.exit(0);
+					} catch (Exception e) {
+						System.out.println("Problemi nella ricezione della risposta, i seguenti: ");
+						e.printStackTrace();
+						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+						continue;
+					}
 
 
-			    	// Ricezione della risposta
+					if("ok".equalsIgnoreCase(risposta)){
+						//Risposta ok
+						//Leggo il numero di file
+						int nFiles = -1;
 
-		      		String risposta;
-		      		try
-		      		{
-		      			risposta = inSock.readUTF();
-		      			System.out.println("Risposta: " + risposta);
-				      // chiudo input della socket
-		      			socket.shutdownInput();
-		      			System.out.println("Chiusura input della socket: " + socket);
-		      		}
-		      		catch(SocketTimeoutException ste)
-		      		{
-		      			System.out.println("Timeout scattato: ");
-		      			ste.printStackTrace();
-		      			socket.close();
-		      			System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");		            
-		      			continue;
-				      	// il client continua l'esecuzione riprendendo dall'inizio del ciclo         
-		      		}
+						try {
+							nFiles = inSock.readInt();
+						} catch (SocketTimeoutException ste) {
+							System.out.println("Timeout scattato: ");
+							ste.printStackTrace();
+							System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+							continue;
+						} catch (EOFException e) {
+							System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
+							socket.close();
+							System.out.println("TCP_Client: termino...");
+							System.exit(0);
+						} catch (Exception e) {
+							System.out.println("Problemi nella ricezione della risposta, i seguenti: ");
+							e.printStackTrace();
+							System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+							continue;
+						}
 
-		      		catch (EOFException e) 
-		      		{
-		      			System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
-		      			socket.close();
-		      			System.out.println("TCP_Client: termino...");
-		      			System.exit(0);
-		      		}
-		      		catch(Exception e)
-		      		{
-		      			System.out.println("Problemi nella ricezione della risposta, i seguenti: ");
-		      			e.printStackTrace();
-		      			socket.close();
-		      			System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");		            
-		      			continue;
-				      // il client continua l'esecuzione riprendendo dall'inizio del ciclo
-		      		}
-			/*	}
-				else if(richiesta.equalsIgnoreCase("U"))
-		      	{
-					.... uguale con try catch come sopra ... e se ci sono altri if continua
-				} 
-				else System.out.println("Errore nella scelta..."); */
+						for (int i = 0; i < nFiles; i++) {
+							String nome = null;
+							long length = -1;
 
+							try {
+								nome = inSock.readUTF();
+								length = inSock.readLong();
+							} catch (SocketTimeoutException ste) {
+								System.out.println("Timeout scattato: ");
+								ste.printStackTrace();
+								System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+								continue;
+							} catch (EOFException e) {
+								System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
+								socket.close();
+								System.out.println("TCP_Client: termino...");
+								System.exit(0);
+							} catch (Exception e) {
+								System.out.println("Problemi nella ricezione della risposta, i seguenti: ");
+								e.printStackTrace();
+								System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
+								continue;
+							}
+
+							//Apro il file
+
+							File myFile = new File(nome);
+
+							if(myFile.exists()){
+								myFile.delete();
+								myFile.createNewFile();
+							}
+
+							BufferedWriter writer = new BufferedWriter(new FileWriter(myFile));
+
+							//Leggo e scrivo su file
+							while(length > 0){
+								int x;
+								x = inSock.read();
+								if(x == -1) break;
+								writer.write(x);
+								length--;
+							}
+							
+							writer.close();
+						}
+
+					}
+				} else{
+					System.out.println("Errore nella scelta...");
+				}
+					
 				// Tutto ok, pronto per nuova richiesta
-		      	System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");	
+				System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
 
-			}// while
+			} // while
 
 			System.out.println("TCP_Client: termino...");
 		}
 
-	    // qui catturo le eccezioni non catturate all'interno del while
-	    // quali per esempio la caduta della connessione con il server
-	    // in seguito alle quali il client termina l'esecuzione
-		catch(Exception e)
-		{
+		// qui catturo le eccezioni non catturate all'interno del while
+		// quali per esempio la caduta della connessione con il server
+		// in seguito alle quali il client termina l'esecuzione
+		catch (Exception e) {
 			System.err.println("Errore irreversibile, il seguente: ");
 			e.printStackTrace();
 			System.err.println("Chiudo!");
-			System.exit(3); 
+			System.exit(3);
 		}
 	} // main
 }
