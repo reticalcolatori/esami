@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "rpc_xfile.h": "c",
+        "rpc.h": "c"
+    }
+}

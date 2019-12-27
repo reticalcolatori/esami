@@ -102,7 +102,7 @@ Result * lista_file_prefisso_1_svc(Input *req, struct svc_req *rp){
 	static Result res;
 	xdr_free((xdrproc_t) xdr_Result, (caddr_t) &res);
 
-	    //Apro la cartella.
+    //Apro la cartella.
     DIR *myDir;
     struct dirent *currItem;
 
