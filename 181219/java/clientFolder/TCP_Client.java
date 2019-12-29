@@ -211,12 +211,6 @@ public class TCP_Client
 						socket.close();
 					}
 
-					//CHECK
-					if(!"Partenza".equals(tipo) && !"Arrivo".equals(tipo)){
-						System.out.println("Tipo: Partenza o Arrivo");
-						continue;
-					}
-
 					System.out.println("Inserisci Partenza:");
 					String partenza = stdIn.readLine();
 
