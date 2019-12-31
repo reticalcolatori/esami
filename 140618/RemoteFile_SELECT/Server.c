@@ -248,11 +248,36 @@ int main(int argc, char **argv)
 
 							if(currItem->d_type == 4 /* DT_REG */) {
 								
-							}
-						}
+								char vowels[] = "AEIOUaeiou";
+								int vowelFound = 0;
+								int consonantFound = 0;
+								int idx = 0;
+								
+								while(currItem->d_name[idx] != '\0' || !(vowelFound && consonantFound)) {
+									if(strchr(vowels, currItem->d_name[idx]))
+										vowelFound = 1;
+									if(!strchr(vowels, currItem->d_name[idx]))
+										consonantFound = 1;	
+								}
 
-					}
-				} //for
+								if(vowelFound && consonantFound) {
+									write(connfd, currItem->d_name, sizeof(currItem->d_name));
+									write(connfd, ";", sizeof(char));
+
+									int fdCurrFile;
+									if(( fdCurrFile = open(currItem->d_name, O_RDONLY)) > 0) {
+										
+										char currChar;
+										while (read(fdCurrFile, &currChar, sizeof(char)) > 0) {
+											write(connect, &currChar, sizeof(char));
+										}
+										write(connfd, "$", sizeof(char));
+									}
+								} //if trovata vocale e consonante
+							} //if regular file
+						} //while ciclo sui file
+					} //while nomeFile
+				} //for demone
 
 				printf("Figlio %i: chiudo connessione e termino\n", getpid());
 				close(connfd);
