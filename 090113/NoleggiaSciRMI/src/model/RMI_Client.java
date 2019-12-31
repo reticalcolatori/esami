@@ -63,7 +63,7 @@ public class RMI_Client {
 						if (esito == 0) {
 							System.out.println("Inserimento andato a buon fine");
 						} else if (esito < 0) {
-							System.out.println("Errore metodo 1");
+							System.out.println("Impossibile completare l'inserimento richiesto!");
 						}
 					} catch (RemoteException re) {
 						System.out.println("Errore Remoto: " + re.toString());
@@ -95,9 +95,9 @@ public class RMI_Client {
 						int esito = serverRMI.noleggia_sci(id, giorno, mese, anno, durata);
 						
 						if (esito == 0) {
-							System.out.println("Inserimento andato a buon fine");
+							System.out.println("Noleggio eseguito!");
 						} else if (esito < 0) {
-							System.out.println("Errore metodo 2");
+							System.out.println("Impossibile noleggiare gli sci selezionati!");
 						}
 					} catch (RemoteException re) {
 						System.out.println("Errore Remoto: " + re.toString());
@@ -108,7 +108,7 @@ public class RMI_Client {
 					System.out.println("Servizio non disponibile");
 				}
 
-				System.out.print("\nServizio ? \n1) Metodo1\n2) Metodo2\n(ctrl+d) per terminare: \n");
+				System.out.print("\nServizio ? \n1) inserisci_sci\n2) noleggia_sci\n(ctrl+d) per terminare: \n");
 			}
 
 		} catch (Exception e) {

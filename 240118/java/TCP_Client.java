@@ -1,8 +1,3 @@
-/************************************
-*     TCP_Client.java	            *
-*           		            *
-************************************/
-
 /* CLIENTE CON CONNESSIONE*/
 
 import java.net.*;
@@ -80,13 +75,6 @@ public class TCP_Client {
 			while ((richiesta = stdIn.readLine()) != null) {
 
 				if (richiesta.equalsIgnoreCase("E") || richiesta.equalsIgnoreCase("T")) {
-					outSock.writeUTF(richiesta);
-					System.out.println("Inviata richiesta: " + richiesta);
-				}
-
-				outSock.flush();
-
-				if (richiesta.equalsIgnoreCase("E")) {
 					try {
 						// Elaborazione richiesta e invio
 						outSock.writeUTF(richiesta);
@@ -99,6 +87,11 @@ public class TCP_Client {
 						continue;
 						// il client continua l'esecuzione riprendendo dall'inizio del ciclo
 					}
+				}
+
+				//outSock.flush();
+
+				if (richiesta.equalsIgnoreCase("E")) {
 
 					System.out.println("Inserisci la parola:");
 					String parola = stdIn.readLine();
@@ -151,19 +144,6 @@ public class TCP_Client {
 						continue;
 					}
 				} else if (richiesta.equalsIgnoreCase("T")) {
-
-					try {
-						// Elaborazione richiesta e invio
-						outSock.writeUTF(richiesta);
-						System.out.println("Inviata richiesta: " + richiesta);
-					} catch (Exception e) {
-						System.out.println("Problemi nell'invio della richiesta " + richiesta);
-						e.printStackTrace();
-
-						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
-						continue;
-						// il client continua l'esecuzione riprendendo dall'inizio del ciclo
-					}
 
 					System.out.println("Inserisci direttorio:");
 					String direttorio = stdIn.readLine();
@@ -226,7 +206,7 @@ public class TCP_Client {
 						System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
 						continue;
 					} catch (EOFException e) {
-						System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
+						System.out.println("1) Raggiunta la fine delle ricezioni, chiudo...");
 						socket.close();
 						System.out.println("TCP_Client: termino...");
 						System.exit(0);
@@ -245,13 +225,14 @@ public class TCP_Client {
 
 						try {
 							nFiles = inSock.readInt();
+							System.out.println("Devo ricevere " + nFiles + " file");
 						} catch (SocketTimeoutException ste) {
 							System.out.println("Timeout scattato: ");
 							ste.printStackTrace();
 							System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
 							continue;
 						} catch (EOFException e) {
-							System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
+							System.out.println("2) Raggiunta la fine delle ricezioni, chiudo...");
 							socket.close();
 							System.out.println("TCP_Client: termino...");
 							System.exit(0);
@@ -275,7 +256,7 @@ public class TCP_Client {
 								System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti input: ");
 								continue;
 							} catch (EOFException e) {
-								System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
+								System.out.println("3) Raggiunta la fine delle ricezioni, chiudo...");
 								socket.close();
 								System.out.println("TCP_Client: termino...");
 								System.exit(0);
@@ -292,8 +273,9 @@ public class TCP_Client {
 
 							if(myFile.exists()){
 								myFile.delete();
-								myFile.createNewFile();
 							}
+
+							myFile.createNewFile();
 
 							BufferedWriter writer = new BufferedWriter(new FileWriter(myFile));
 

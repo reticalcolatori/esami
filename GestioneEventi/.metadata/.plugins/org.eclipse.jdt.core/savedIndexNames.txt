@@ -1,0 +1,3 @@
+INDEX VERSION 1.131+/code/reti-project/esami/GestioneEventi/.metadata/.plugins/org.eclipse.jdt.core
+1581524451.index
+295763723.index

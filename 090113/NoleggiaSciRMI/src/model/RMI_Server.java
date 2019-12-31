@@ -41,6 +41,7 @@ public class RMI_Server extends UnicastRemoteObject implements RMI_interfaceFile
 	// Avvio del Server RMI
 	public static void main(String[] args) {
 		
+		//creo e avvio il registry nella macchina dove risiede il server (devono risiedere sulla stessa macchina)
 		try {
 			LocateRegistry.createRegistry(1099);
 		} catch (RemoteException e1) {

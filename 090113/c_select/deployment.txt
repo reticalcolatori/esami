@@ -1,0 +1,7 @@
+gcc -o server Select_Server.c
+gcc -o clientDatagram Select_Client_Datagram.c
+gcc -o clientStream Select_Client_Stream.c
+
+./server 4444
+./clientDatagram localhost 4444
+./clientStream localhost 4444
