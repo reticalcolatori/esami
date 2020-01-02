@@ -11,8 +11,6 @@ public class TCP_Server
     // dichiarata come statica perche caratterizza il server
 	private static final int PORT = 54321;
 
-	//Qui possibile tabella statica: da passare poi nel costruttore del thread figlio.
-
 	public static void main (String[] args) throws IOException
 	{
       	// Porta sulla quale ascolta il server
@@ -48,9 +46,6 @@ public class TCP_Server
 			System.out.println("Usage: java TCP_Server or java TCP_Server port");
 			System.exit(1);
 		}
-		/******** INIZIALIZZAZIONE TABELLA ************/
-
-		/*********************************************/
 
 		ServerSocket serverSocket = null;
 		Socket clientSocket = null;
@@ -161,55 +156,18 @@ class TCP_ServerThread extends Thread
 	    	// Ricezione della richiesta
 			String richiesta;
 
-			//WHILE QUI SE FAI UNA CONNESSIONE PER SESSIONE!
-
-			try 
-			{
-				richiesta = inSock.readUTF();
-				if(richiesta == null)
+			while(true){ 
+				try 
 				{
-					System.out.println("EOF esco");
-					clientSocket.shutdownOutput();
+					richiesta = inSock.readUTF();
+					System.out.println("Richiesta: " + richiesta);
+				}
+				catch(EOFException ex){
+					System.out.println("EOF Ricevuto");
 					clientSocket.shutdownInput();
+					clientSocket.shutdownOutput();
 					clientSocket.close();
 					return;
-				}
-				System.out.println("Richiesta: " + richiesta);
-			}
-			catch(EOFException ex){
-				System.out.println("EOF Ricevuto");
-				clientSocket.shutdownInput();
-				clientSocket.shutdownOutput();
-				clientSocket.close();
-				return;
-			}
-			catch(SocketTimeoutException ste)
-			{
-				System.out.println("Timeout scattato: ");
-				ste.printStackTrace();
-				clientSocket.shutdownOutput();
-				clientSocket.shutdownInput();
-				clientSocket.close();
-				return;          
-			}        
-			catch (Exception e) 
-			{
-				System.out.println("Problemi nella ricezione della richiesta: ");
-				e.printStackTrace();
-				// servo nuove richieste
-				return;
-			}
-
-			if(richiesta.equalsIgnoreCase("U"))
-			{																
-				String risposta = null;
-	    		// Elaborazione e invio della risposta
-
-				try
-				{
-					outSock.writeUTF(risposta);
-					// clientSocket.shutdownOutput();
-					// System.out.println("Terminata connessione con " + clientSocket);
 				}
 				catch(SocketTimeoutException ste)
 				{
@@ -219,24 +177,262 @@ class TCP_ServerThread extends Thread
 					clientSocket.shutdownInput();
 					clientSocket.close();
 					return;          
-				}              
+				}        
 				catch (Exception e) 
 				{
-					System.err.println("\nProblemi nell'invio della risposta: "+ e.getMessage());
+					System.out.println("Problemi nella ricezione della richiesta: ");
 					e.printStackTrace();
-					clientSocket.shutdownOutput();
-					clientSocket.shutdownInput();
-					clientSocket.close();
+					// servo nuove richieste
 					return;
 				}
-			}
-			else if(richiesta.equalsIgnoreCase("D"))
-			{
-				//....come primma
-			} 												
+	
+				//eliminare tutte le occorrenze di caratteri vocali all’interno di un file di testo remoto
+				if(richiesta.equalsIgnoreCase("E"))
+				{								
+					String nomeFile = null;								
+					
+					//Richiesta nome file.
+					try 
+					{
+						nomeFile = inSock.readUTF();
+						System.out.println("NomeFile: " + nomeFile);
+					}
+					catch(EOFException ex){
+						System.out.println("EOF Ricevuto");
+						clientSocket.shutdownInput();
+						clientSocket.shutdownOutput();
+						clientSocket.close();
+						return;
+					}
+					catch(SocketTimeoutException ste)
+					{
+						System.out.println("Timeout scattato: ");
+						ste.printStackTrace();
+						clientSocket.shutdownOutput();
+						clientSocket.shutdownInput();
+						clientSocket.close();
+						return;          
+					}        
+					catch (Exception e) 
+					{
+						System.out.println("Problemi nella ricezione della nome file: ");
+						e.printStackTrace();
+						clientSocket.shutdownOutput();
+						clientSocket.shutdownInput();
+						clientSocket.close();
+						return;
+					}
+
+					//Elaborazione della risposta.
+					int risposta = -1;
+					int occorrenzeEliminate = 0;
+
+					File myFile = new File(nomeFile);
+					File myTmpFile = new File(nomeFile+".tmp");
+
+					if(myFile.exists()){
+						if(myFile.canRead() && myFile.canWrite()){
+							if(!myTmpFile.exists()){
+								myTmpFile.createNewFile();
+
+								try{
+									FileReader reader = new FileReader(myFile);
+									FileWriter writer = new FileWriter(myTmpFile);
+	
+									int nextCh = -1;
+	
+									while((nextCh = reader.read()) != -1){
+										if("aeiouAEIOU".indexOf(nextCh) == -1){
+											writer.write(nextCh);
+										}else{
+											occorrenzeEliminate++;
+										}
+									}
+	
+									writer.close();
+									reader.close();
+								}catch(IOException ex){
+									System.out.println("Errore durante eliminazione delle vocali:");
+									ex.printStackTrace();	
+								}
+
+								//Ora devo sostituire il file originale.
+								if(myFile.delete()){
+									try{
+										FileReader reader = new FileReader(myTmpFile);
+										FileWriter writer = new FileWriter(myFile);
+		
+										int nextCh = -1;
+		
+										while((nextCh = reader.read()) != -1){
+											writer.write(nextCh);
+										}
+		
+										writer.close();
+										reader.close();
+									}catch(IOException ex){
+										System.out.println("Errore durante la copia del tmp");
+										ex.printStackTrace();	
+									}
+
+									if(myTmpFile.delete()){
+										risposta = occorrenzeEliminate;
+									}else{
+										System.out.println("Impossibile eliminare il file tmp");
+									}
+								}else{
+									System.out.println("Impossibile eliminare il file originale");
+								}
+							}
+							
+						}
+					}
+
+					try
+					{
+						outSock.writeInt(risposta);
+					}
+					catch(SocketTimeoutException ste)
+					{
+						System.out.println("Timeout scattato: ");
+						ste.printStackTrace();
+						clientSocket.shutdownOutput();
+						clientSocket.shutdownInput();
+						clientSocket.close();
+						return;          
+					}              
+					catch (Exception e) 
+					{
+						System.err.println("\nProblemi nell'invio della risposta: "+ e.getMessage());
+						e.printStackTrace();
+						clientSocket.shutdownOutput();
+						clientSocket.shutdownInput();
+						clientSocket.close();
+						return;
+					}
+				}
+				else if(richiesta.equalsIgnoreCase("D"))
+				{
+					//Prendo il nome del direttorio
+					String nomeDir = null;								
+					
+					try 
+					{
+						nomeDir = inSock.readUTF();
+						System.out.println("Nome Dir: " + nomeDir);
+					}
+					catch(EOFException ex){
+						System.out.println("EOF Ricevuto");
+						clientSocket.shutdownInput();
+						clientSocket.shutdownOutput();
+						clientSocket.close();
+						return;
+					}
+					catch(SocketTimeoutException ste)
+					{
+						System.out.println("Timeout scattato: ");
+						ste.printStackTrace();
+						clientSocket.shutdownOutput();
+						clientSocket.shutdownInput();
+						clientSocket.close();
+						return;          
+					}        
+					catch (Exception e) 
+					{
+						System.out.println("Problemi nella ricezione del nomeDir: ");
+						e.printStackTrace();
+						clientSocket.shutdownOutput();
+						clientSocket.shutdownInput();
+						clientSocket.close();
+						return;
+					}
+
+					int nFiles = 0;
+					File myDir = new File(nomeDir);
+					File[] filesToTransfer = new File[0];
+
+					if(myDir.isDirectory()){
+						File[] files = myDir.listFiles();
+						filesToTransfer = new File[files.length];
+
+						for(int i = 0; i < files.length; i++){
+							File myFile = files[i];
+							String myFileName = myFile.getName();
+							int occorrenzeMinuscole = 0;
+
+							//Invio solo i file che posso leggere
+							if(myFile.canRead()){
+								for(int j = 0; j < myFileName.length() && occorrenzeMinuscole < 2; j++){
+									if("qwertyuiopasdfghjklzxcvbnm".indexOf(myFileName.charAt(j)) != -1) occorrenzeMinuscole++;
+								}
+	
+								if(occorrenzeMinuscole >= 2){
+									filesToTransfer[nFiles++] = myFile;
+								}
+							}							
+						}
+					}
+
+					//Posso inviare i file al client
+
+					try
+					{
+						outSock.writeInt(nFiles);
+
+						for (int i = 0; i < nFiles; i++) {
+							File myFile = filesToTransfer[i];
+
+							//Invio nome file
+							outSock.writeUTF(myFile.getName());
+
+							//Invio lunghezza
+							outSock.writeLong(myFile.length());
+
+							//Invio contenuto
+							
+							try{
+								InputStream iStream = new FileInputStream(myFile);
+
+								int nextData = -1;
+	
+								while((nextData=iStream.read()) != -1){
+									outSock.writeByte(nextData);
+								}
+	
+								iStream.close();
+							}catch(IOException ex){
+								System.out.println("Errore durante la lettura del file "+myFile.getName()+":");
+								ex.printStackTrace();
+								clientSocket.shutdownOutput();
+								clientSocket.shutdownInput();
+								clientSocket.close();
+								return;
+							}
+						}
+					}
+					catch(SocketTimeoutException ste)
+					{
+						System.out.println("Timeout scattato: ");
+						ste.printStackTrace();
+						clientSocket.shutdownOutput();
+						clientSocket.shutdownInput();
+						clientSocket.close();
+						return;          
+					}              
+					catch (Exception e) 
+					{
+						System.err.println("\nProblemi nell'invio della risposta: "+ e.getMessage());
+						e.printStackTrace();
+						clientSocket.shutdownOutput();
+						clientSocket.shutdownInput();
+						clientSocket.close();
+						return;
+					}
+				} 	
+			}														
 		}
-	// qui catturo le eccezioni non catturate all'interno del while
-	// in seguito alle quali il server termina l'esecuzione
+		// qui catturo le eccezioni non catturate all'interno del while
+		// in seguito alle quali il server termina l'esecuzione
 		catch (Exception e) 
 		{
 			e.printStackTrace();

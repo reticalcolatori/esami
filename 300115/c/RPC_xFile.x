@@ -29,6 +29,7 @@ struct Input
 
 struct MyFile {
 	/* Con string crasha........... Boh */
+	/* string filename<FILENAME_LENGTH>; */
 	char filename[FILENAME_LENGTH];
 };
 
