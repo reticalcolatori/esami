@@ -21,14 +21,14 @@
  #include <netdb.h>
 
  #define DIM_BUFF 100
- 
- #define LENGTH_FILE_NAME 20
 
  int main(int argc, char * argv[]) {
-     int sd, nread, port;
-     char c, ok, nome_file[LENGTH_FILE_NAME];
+     int sd, nread, nwrite, port;
      struct hostent * host;
      struct sockaddr_in serverAddress;
+
+    char nomeDirettorio[DIM_BUFF];
+    char suffisso[DIM_BUFF];
 
      /* CONTROLLO ARGOMENTI ---------------------------------- */
      if (argc != 3) {
@@ -83,49 +83,120 @@
      /* CORPO DEL CLIENT: */
      /* ciclo di accettazione di richieste di file ------- */
 
-     printf("Richieste di file fino alla fine del file di input\n");
-     printf("Qualsiasi tasto per procedere, EOF per terminare\n");
-     printf("---richieste ---: ");
-
-     while (gets() != NULL) {
+     printf("Richieste fino a EOF\n");
+     
+     while (1) {
 
          //Devo richiedere all'utente: nome direttorio e suffisso
+
+		//Richiedo nome dir e suffisso:
+		printf("Inserisci nome dir: \n");
+
+		if(gets(nomeDirettorio) == NULL){
+			//EOF
+			printf("Ricevuto EOF: esco\n");
+			return 0;
+		}
+
+		printf("Inserisci il suffisso: \n");
+
+		if(gets(suffisso) == NULL){
+			//EOF
+			printf("Ricevuto EOF: esco\n");
+			return 0;
+		}
+
+        //Invio al server
+
+        if(write(sd, nomeDirettorio, sizeof(char)*(strlen(nomeDirettorio)+1)) < 0){
+            perror("write");
+            break;
+        }
         
+        printf("Richiesta inviata... \n");
 
 
-         /*
-                   if (write(sd, nome_file, (strlen(nome_file)+1))<0)
-                   {
-                       perror("write");
-                       break;
-                   }
-                   printf("Richiesta del file %s inviata... \n", nome_file);
+        //Ricezione numero files
+        int numeroFilesNetwork;
+        int numeroFiles;
 
-                   if (read(sd, &ok, 1)<0)
-                   {
-                       perror("read");      
-                       break;
-                   }
 
-                   if (ok=='S')
-                   {
-                     printf("Ricevo il file:\n");
-                     while((nread=read(sd,&c,1))>0) // leggo a caratteri per individuare il fine file
-                       if (c!='\0')
-                       {
-                         write(1,&c,1);
-                       }
-                       else break;
-                     if( nread < 0 )
-                     {
-                       perror("read");
-                       break;
-                     }
-                   }
-                   else if (ok=='N') printf("File inesistente\n");
+        if (read(sd, &numeroFilesNetwork, sizeof(int))<0)
+        {
+            perror("read");      
+            break;
+        }
 
-                   printf("Nome del file da richiedere: ");*/
+        numeroFiles = ntohl(numeroFilesNetwork);
 
+
+        if(numeroFiles < 0){
+            printf("Il server ha riscontrato un errore: %d", numeroFiles);
+            break;
+        }
+
+        for(int i = 0; i < numeroFiles; i++){
+            //Richiesta nome file e lunghezza
+
+            char nomeFile[DIM_BUFF];
+            int lengthNomeFile = 0;
+
+			while((nread = read(sd, nomeFile+lengthNomeFile, sizeof(char))) > 0 && lengthNomeFile < DIM_BUFF){
+				if(nomeFile[lengthNomeFile] == '\0'){
+					break;
+				}
+				lengthNomeFile++;
+			}
+
+            //Richiesta lunghezza
+            int lunghezzaNetwork;
+            int lunghezza;
+
+
+            if (read(sd, &lunghezzaNetwork, sizeof(int))<0)
+            {
+                perror("read");      
+                break;
+            }
+
+            lunghezza = ntohl(lunghezzaNetwork);
+            
+            if(lunghezza < 0){
+                //Errore server
+                printf("Il server ha riscontrato un errore (%d) nella lettura del file %s", lunghezza, nomeFile);
+                continue;
+            }
+
+            //Apro il file e lo salvo.
+            char nextCh;
+            int fdWrite = open(nomeFile, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+
+            if(fdWrite < 0){
+                perror("errore apertura file scrittura");
+                //Comunque devo continuare a leggere a vuoto
+                for(int i = 0; i < lunghezza; i++) read(sd, &nextCh, sizeof(char));
+            }
+
+            for(int i = 0; i < lunghezza; i++){
+                nread = read(sd, &nextCh, sizeof(char));
+                if(nread > 0){
+                    if(write(fdWrite, &nextCh, sizeof(char)) < 0){
+                        perror("write file download");
+                        exit(1);
+                    }
+                }else if(nread == 0) {
+                    //EOF:
+                    printf("Il server ha lanciato EOF\n");
+
+                    exit(1);
+                }else{
+                    perror("read");      
+                    break;
+                }
+            }
+
+            close(fdWrite);
+        }
      } //while
 
      printf("\nClient Stream: termino...\n");

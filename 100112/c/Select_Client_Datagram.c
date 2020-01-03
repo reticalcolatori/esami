@@ -37,11 +37,11 @@ RequestDatagram;
 int main(int argc, char ** argv) {
     struct hostent * host;
     struct sockaddr_in clientaddr, servaddr;
-    int sd, len, port, num, ris;
+    int sd, len, port, num;
     int nbyte_recv, nbyte_send;
 
     //Variabili che cambiano
-    int condition, ris;
+    int ris;
     RequestDatagram req;
 
 	char input[DIM_BUFF];
@@ -123,7 +123,7 @@ int main(int argc, char ** argv) {
 
     while (1) {
         
-		//Richiedo nome file e suffisso:
+		//Richiedo nome file e rimpiazzo:
 		printf("Inserisci nome file: \n");
 
 		if(gets(req.nomeFile) == NULL){

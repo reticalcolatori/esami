@@ -338,11 +338,9 @@ int main(int argc, char ** argv) {
 					int lengthNomeDirettorio = 0;
 					//int nread, nwrite;
 
-					//Richiedo nome direttorio: \n per terminare
+					//Richiedo nome direttorio: \0 per terminare
 					while((nread = read(connfd, nomeDirettorio+lengthNomeDirettorio, sizeof(char))) > 0 && lengthNomeDirettorio < DIM_BUFF){
-						if(nomeDirettorio[lengthNomeDirettorio] == '\n'){
-							//Taglio
-							nomeDirettorio[lengthNomeDirettorio] = '\0';
+						if(nomeDirettorio[lengthNomeDirettorio] == '\0'){
 							break;
 						}
 
@@ -367,11 +365,9 @@ int main(int argc, char ** argv) {
 					char suffisso[DIM_BUFF];
 					int lengthSuffisso = 0;
 
-					//Richiedo suffisso: \n per terminare
+					//Richiedo suffisso: \0 per terminare
 					while((nread = read(connfd, suffisso+lengthSuffisso, sizeof(char))) > 0 && lengthSuffisso < DIM_BUFF){
-						if(suffisso[lengthSuffisso] == '\n'){
-							//Taglio
-							suffisso[lengthSuffisso] = '\0';
+						if(suffisso[lengthSuffisso] == '\0'){
 							break;
 						}
 
@@ -480,6 +476,14 @@ int main(int argc, char ** argv) {
 
 									if(strcmp(token, suffisso) == 0){
 										//Ho una corrispondenza:
+
+										//Invio nome:
+										if(write(connfd, nomeTmp, sizeof(char)*(strlen(nomeTmp)+1)) < 0){
+											perror("write");
+											break;
+										}
+
+
 										//Invio lunghezza:
 
 										struct stat bufstat;
