@@ -30,6 +30,12 @@ public class RMI_Client {
 			}
 		}
 
+		// Impostazione del SecurityManager
+		if (System.getSecurityManager() == null){
+			System.setProperty("java.security.policy", "rmi.policy");
+			System.setSecurityManager(new RMISecurityManager());
+		}
+
 		// Connessione al servizio RMI remoto
 		try {
 			String completeName = "//" + registryHost + ":" + registryPort + "/" + serviceName;

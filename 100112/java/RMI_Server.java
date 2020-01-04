@@ -95,6 +95,12 @@ public class RMI_Server extends UnicastRemoteObject implements RMI_interfaceFile
 			}
 		}
 
+		// Impostazione del SecurityManager
+		if (System.getSecurityManager() == null){
+			System.setProperty("java.security.policy", "rmi.policy");
+			System.setSecurityManager(new RMISecurityManager());
+		}
+
 		// Registrazione del servizio
 		String completeName = "//" + registryHost + ":" + registryPort + "/" + serviceName;
 
