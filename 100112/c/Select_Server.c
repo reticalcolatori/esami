@@ -242,7 +242,7 @@ int main(int argc, char ** argv) {
 						close(udpFdWrite);
 
 						//Sposto il file temporaneo in quello definitivo
-						if(remove(req.nomeFile)){
+						if(remove(req.nomeFile) == 0){
 							int udpFdWrite = open(req.nomeFile, O_CREAT | O_TRUNC | O_WRONLY, 0644);
 
 							if(udpFdWrite >= 0){
@@ -256,6 +256,9 @@ int main(int argc, char ** argv) {
 											break;
 										}
 									}
+
+									//Infine rimuovo il file temporaneo
+									remove(nomeFileTmp);
 								}else{
 									perror("Open UDP TMP Read");
 									esito = -1;
@@ -289,7 +292,7 @@ int main(int argc, char ** argv) {
 				exit(esito >= 0 ? 0 : 1);
 			}else if(childPid > 0){
 				//Padre
-				printf("Gestione DATAGRAM in corso: %d", childPid);
+				printf("Gestione DATAGRAM in corso: %d\n", childPid);
 			}else{
 				//Errore
 				//Errore nella fork:
@@ -328,9 +331,9 @@ int main(int argc, char ** argv) {
             if (childPid == 0) {
                 close(listenfd);
                 //chi mi fa richiesta
-                hostTcp = gethostbyaddr((char * ) & clientaddr.sin_addr, sizeof(clientaddr.sin_addr), AF_INET);
+                hostTcp = gethostbyaddr((char * ) &clientaddr.sin_addr, sizeof(clientaddr.sin_addr), AF_INET);
                 printf("Dentro il figlio pid=%d\n", getpid());
-                printf("Richiesta del client: %s\n", hostTcp->h_addr_list[0]);
+                printf("Richiesta del client: %s\n", hostTcp->h_name);
 
                 for(;;)
                 {
@@ -349,7 +352,7 @@ int main(int argc, char ** argv) {
 
 					if(nread == 0){
 						//EOF esco.
-						printf("%d) Ricevuto EOF: esco", getpid());
+						printf("%d) Ricevuto EOF: esco\n", getpid());
 						shutdown(connfd, SHUT_RD);
 						shutdown(connfd, SHUT_WR);
 						close(connfd);
@@ -376,7 +379,7 @@ int main(int argc, char ** argv) {
 
 					if(nread == 0){
 						//EOF esco.
-						printf("%d) Ricevuto EOF: esco", getpid());
+						printf("%d) Ricevuto EOF: esco\n", getpid());
 						shutdown(connfd, SHUT_RD);
 						shutdown(connfd, SHUT_WR);
 						close(connfd);
@@ -388,7 +391,7 @@ int main(int argc, char ** argv) {
 						exit(1);
 					}
 
-					printf("Richiesta, la seguente..");
+					printf("Richiesta, la seguente..\n");
 					printf("Nome direttorio: %s\nSuffisso: %s\n", nomeDirettorio, suffisso);
 
 					//Risposta: 
@@ -459,8 +462,6 @@ int main(int argc, char ** argv) {
 									//Copio il nome in un buffer temporaneo per dopo.
 									char nomeTmp[DIM_BUFF+5];
 									strcpy(nomeTmp, currItem->d_name);
-									strcat(nomeTmp, ".");
-									strcat(nomeTmp, suffisso);
 
 									//Se file regolare verifico il suffisso.
 									char *token = strtok(currItem->d_name, ".");
@@ -483,15 +484,21 @@ int main(int argc, char ** argv) {
 											break;
 										}
 
+										//Creo un path completo
+										char path[DIM_BUFF];
+										strcpy(path, nomeDirettorio);
+										strcat(path, "/");
+										strcat(path, nomeTmp);
+
 
 										//Invio lunghezza:
 
 										struct stat bufstat;
 
-										if(stat(nomeTmp, &bufstat)){
+										if(stat(path, &bufstat) == 0){
 											int size = (int)bufstat.st_size;//Ci vorrebbe un htonl a 64 bit
 
-											int tcpFdRead = open(nomeTmp, O_RDONLY);
+											int tcpFdRead = open(path, O_RDONLY);
 
 											if(tcpFdRead < 0)
 											{

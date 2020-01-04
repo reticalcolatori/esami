@@ -113,6 +113,11 @@
             break;
         }
         
+        if(write(sd, suffisso, sizeof(char)*(strlen(suffisso)+1)) < 0){
+            perror("write");
+            break;
+        }
+
         printf("Richiesta inviata... \n");
 
 
@@ -131,7 +136,7 @@
 
 
         if(numeroFiles < 0){
-            printf("Il server ha riscontrato un errore: %d", numeroFiles);
+            printf("Il server ha riscontrato un errore: %d\n", numeroFiles);
             break;
         }
 
@@ -163,7 +168,7 @@
             
             if(lunghezza < 0){
                 //Errore server
-                printf("Il server ha riscontrato un errore (%d) nella lettura del file %s", lunghezza, nomeFile);
+                printf("Il server ha riscontrato un errore (%d) nella lettura del file %s\n", lunghezza, nomeFile);
                 continue;
             }
 
