@@ -13,52 +13,61 @@ import java.rmi.server.*;
 public class RMI_Server extends UnicastRemoteObject implements RMI_interfaceFile {
 	private static final long serialVersionUID = 1L;
 
-	// qui eventuali variabili e strutture dati
-	/*
-	 * private static final int N = 10; static Noleggio tabella[] = null;
-	 */
+	public static final int TABLEDIM = 10;
+	private static final Riga[] tabella = new Riga[TABLEDIM];
 
 	// Costruttore
 	public RMI_Server() throws RemoteException {
 		super();
 	}
 
-	// Eventuali metodi legati alla struttura dati
-
-	/*
-	 * 
-	 * public static void stampa() { System.out.
-	 * println("Identificatore\tData\tGiorni\tModello\tCosto giornaliero\n");
-	 * 
-	 * for(int i=0; i<N; i++) { System.out.println(tabella[i].id + "\t" +
-	 * tabella[i].giorno + "/" + tabella[i].mese + "/" + tabella[i].anno + "\t" +
-	 * tabella[i].giorni + "\t" + tabella[i].modello + "\t" + tabella[i].costo ); }
-	 * }
-	 * 
-	 */
 
 	// Implementazione dei metodi
 
 	@Override
-	public int metodo1(int valore) throws RemoteException {
-		int numero = valore;
+	public int inserimento_evento(Riga inserimento) throws RemoteException {
+		int result = -1;
+		
+		boolean trovato = false;
+		boolean doppione = false;
+		int index = -1;
 
-		// Se ci sono errori sollevo RemoteException
-		if (numero == -1)
-			throw new RemoteException();
+		for (int i = 0; i < tabella.length; i++) {
+			if(tabella[i].getDescrizione().equals(inserimento.getDescrizione())){
+				doppione = true;
+				break;
+			}
+			if(!trovato && tabella[i].getDescrizione().equals("L")){
+				trovato = true;
+				index = i;
+			}
+		}
 
-		return numero;
+		if(!doppione){
+			if(trovato){
+				tabella[i] = inserimento;
+				result = 0;
+			}
+		}
+
+		return result;
 	}
 
 	@Override
-	public int metodo2(int valore) throws RemoteException {
-		int numero = valore;
+	public int acquista_biglietti(String descrizione, int numeroBiglietti) throws RemoteException {
+		int result = -1;
+		boolean trovato = false;
 
-		// Se ci sono errori sollevo RemoteException
-		if (numero == -1)
-			throw new RemoteException();
+		for (int i = 0; i < tabella.length; i++) {
+			if(tabella[i].getDescrizione().equals(inserimento.getDescrizione())){
+				if(tabella[i].getDisponibilita() >= numeroBiglietti){
+					tabella[i].setDisponibilita(tabella[i].getDisponibilita()-numeroBiglietti);
+					result = 0;
+				}
+			}
+		}
 
-		return numero;
+		return result;
 	}
 
 	// Avvio del Server RMI
@@ -83,22 +92,23 @@ public class RMI_Server extends UnicastRemoteObject implements RMI_interfaceFile
 
 		// Qui inizializzo eventuali strutture dati
 
-		/*
-		 * 
-		 * tabella = new Noleggio[N];
-		 * 
-		 * for(int i=0; i<N; i++) tabella[i] = new Noleggio();
-		 * 
-		 * tabella[0] = new Noleggio("00001", 13, 02, 2013, 10, "uomo", 15); tabella[1]
-		 * = new Noleggio("00002", 24, 04, 2013, 15, "donna", 5); tabella[2] = new
-		 * Noleggio("00003", 20, 03, 2013, 5, "bambino", 10); tabella[3] = new
-		 * Noleggio(); tabella[3].id = "00004"; tabella[3].modello = "uomo";
-		 * tabella[3].costo = 20; tabella[4] = new Noleggio(); tabella[4].id = "00005";
-		 * tabella[4].modello = "uomo"; tabella[4].costo = 25;
-		 * 
-		 * stampa();
-		 * 
-		 */
+		for (int i = 0; i < TABLEDIM; i++) {
+			tabella[i] = new Riga();
+		}
+
+		tabella[0].setDescrizione("String");
+		tabella[0].setTipo("Concerto");
+		tabella[0].setLuogo("Verona");
+		tabella[0].setData("11/11/11");
+		tabella[0].setPrezzo(100);
+		tabella[0].setDisponibilita(50);
+
+		tabella[1].setDescrizione("BFC-JUV");
+		tabella[1].setTipo("Calcio");
+		tabella[1].setLuogo("Verona");
+		tabella[1].setData("11/11/12");
+		tabella[1].setPrezzo(50);
+		tabella[1].setDisponibilita(150);
 
 		// Impostazione del SecurityManager
 		if (System.getSecurityManager() == null){

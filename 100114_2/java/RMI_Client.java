@@ -44,7 +44,7 @@ public class RMI_Client {
 			System.out.println("\nRichieste di servizio fino a fine file");
 
 			String service;
-			System.out.print("\nServizio ? \n1) Metodo1\n2) Metodo2\n(ctrl+d) per terminare: \n");
+			System.out.print("\nServizio ? \n1) inserimento_evento\n2) acquista_biglietti\n(ctrl+d) per terminare: \n");
 
 			while ((service = stdIn.readLine()) != null) {
 				// Richiamo i metodi remoti e controllo che tutto vada bene
@@ -69,11 +69,40 @@ public class RMI_Client {
 				else if (service.equals("2")) {
 					// LOGICA APPLICATIVA
 
+					//Richiesta descrizione e numero biglietti
+					System.out.println("Inserisci descrizione: ");
+					String descrizione = stdIn.readLine();
+
+					if(descrizione == null){
+						System.out.println("EOF Ricevuto");
+						break;
+					}
+
+
+					System.out.println("Inserisci numero biglietti:");
+					String numeroBigliettiString = stdIn.readLine();
+
+
+					if(numeroBigliettiString == null){
+						System.out.println("EOF Ricevuto");
+						break;
+					}
+
+					int numBiglietti = -1;
+
+					try{
+						numBiglietti = Integer.parseInt(numeroBigliettiString);
+					}catch(NumberFormatException ex){
+						System.out.println("Inserito prezzo non valido");
+						System.out.print("\nServizio ? \n1) inserimento_evento\n2) acquista_biglietti\n(ctrl+d) per terminare: \n");
+						continue;
+					}
+
 					// Eseguo il metodo richiesto
 					try {
 						int esito = -1;
 
-						// esito = serverRMI.metodo2(campi_del_metodo);
+						 esito = serverRMI.metodo2(descrizione, numBiglietti);
 
 						if (esito == 0) {
 							System.out.println("Inserimento andato a buon fine");
@@ -89,7 +118,7 @@ public class RMI_Client {
 					System.out.println("Servizio non disponibile");
 				}
 
-				System.out.print("\nServizio ? \n1) Metodo1\n2) Metodo2\n(ctrl+d) per terminare: \n");
+				System.out.print("\nServizio ? \n1) inserimento_evento\n2) acquista_biglietti\n(ctrl+d) per terminare: \n");
 			}
 
 		} catch (Exception e) {
