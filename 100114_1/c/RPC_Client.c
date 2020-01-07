@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 			if(gets(inserimento.descrizione) == NULL){
 				//EOF
 				printf("Ricevuto EOF\n");
-				return 0;
+				break;
 			}
 
 			printf("Inserisci il tipo (Concerto, Calcio, Formula1):\n");
@@ -71,11 +71,12 @@ int main(int argc, char *argv[])
 			if(gets(inserimento.tipo) == NULL){
 				//EOF
 				printf("Ricevuto EOF\n");
-				return 0;
+				break;
 			}
 
 			if(strcmp(inserimento.tipo, "Concerto") != 0 && strcmp(inserimento.tipo, "Calcio") != 0 && strcmp(inserimento.tipo, "Formula1") != 0){
 				printf("Tipo non corretto\n");
+				printf("\nInserire: \n1 INSERIMENTO_EVENTO \n2 ACQUISTA_BIGLIETTI \n ^D per terminare: ");
 				continue;
 			}
 
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
 			if(gets(inserimento.data) == NULL){
 				//EOF
 				printf("Ricevuto EOF\n");
-				return 0;
+				break;
 			}
 
 			printf("Inserisci il luogo:\n");
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
 			if(gets(inserimento.luogo) == NULL){
 				//EOF
 				printf("Ricevuto EOF\n");
-				return 0;
+				break;
 			}
 
 			printf("Inserisci la disponibilità (>0):\n");
@@ -100,7 +101,7 @@ int main(int argc, char *argv[])
 			if(gets(input) == NULL){
 				//EOF
 				printf("Ricevuto EOF\n");
-				return 0;
+				break;
 			}
 
 			//Check
@@ -116,14 +117,16 @@ int main(int argc, char *argv[])
 
 			if(!ok){
 				printf("disponibilià non intero\n");
-				break;
+				printf("\nInserire: \n1 INSERIMENTO_EVENTO \n2 ACQUISTA_BIGLIETTI \n ^D per terminare: ");
+				continue;
 			}
 
 			inserimento.disponibilita = atoi(input);
 
 			if(inserimento.disponibilita <= 0){
 				printf("disponibilià insufficiente\n");
-				break;
+				printf("\nInserire: \n1 INSERIMENTO_EVENTO \n2 ACQUISTA_BIGLIETTI \n ^D per terminare: ");
+				continue;
 			}
 
 
@@ -132,7 +135,7 @@ int main(int argc, char *argv[])
 			if(gets(input) == NULL){
 				//EOF
 				printf("Ricevuto EOF\n");
-				return 0;
+				break;
 			}
 
 			//Check
@@ -148,14 +151,16 @@ int main(int argc, char *argv[])
 
 			if(!ok){
 				printf("prezzo non intero\n");
-				break;
+				printf("\nInserire: \n1 INSERIMENTO_EVENTO \n2 ACQUISTA_BIGLIETTI \n ^D per terminare: ");
+				continue;
 			}
 
 			inserimento.prezzo = atoi(input);
 
 			if(inserimento.prezzo < 0){
 				printf("prezzo insufficiente\n");
-				break;
+				printf("\nInserire: \n1 INSERIMENTO_EVENTO \n2 ACQUISTA_BIGLIETTI \n ^D per terminare: ");
+				continue;
 			}
 
 		    // Invocazione remota dopo aver caricato la struttura dati
@@ -190,7 +195,7 @@ int main(int argc, char *argv[])
 			if(gets(acquisto.descrizione) == NULL){
 				//EOF
 				printf("Ricevuto EOF\n");
-				return 0;
+				break;
 			}
 
 		    printf("Inserisci il numero di biglietti (>0):\n");
@@ -198,7 +203,7 @@ int main(int argc, char *argv[])
 			if(gets(input) == NULL){
 				//EOF
 				printf("Ricevuto EOF\n");
-				return 0;
+				break;
 			}
 
 			//Check
@@ -214,14 +219,16 @@ int main(int argc, char *argv[])
 
 			if(!ok){
 				printf("numeroBiglietti non intero\n");
-				break;
+				printf("\nInserire: \n1 INSERIMENTO_EVENTO \n2 ACQUISTA_BIGLIETTI \n ^D per terminare: ");
+				continue;
 			}
 
 			acquisto.numeroBiglietti = atoi(input);
 
 			if(acquisto.numeroBiglietti <= 0){
 				printf("disponibilià insufficiente\n");
-				break;
+				printf("\nInserire: \n1 INSERIMENTO_EVENTO \n2 ACQUISTA_BIGLIETTI \n ^D per terminare: ");
+				continue;
 			}
 
 		    // Invocazione remota dopo aver caricato la struttura dati
